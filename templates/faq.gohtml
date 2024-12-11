@@ -1,14 +1,13 @@
 
-
 <h1>FAQ</h1>
-
 {{define "qa"}}
 <li><p><b>{{.Question}}</b></li>
 {{.Answer}}</p>
 {{end}}
-
+{{define "page"}}
 <ul>
 {{range .}}
 {{template "qa" .}}
 {{end}}
 </ul>
+{{end}}
