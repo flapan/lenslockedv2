@@ -1,13 +1,16 @@
-
-<h1>FAQ</h1>
-{{define "qa"}}
-<li><p><b>{{.Question}}</b></li>
-{{.Answer}}</p>
-{{end}}
 {{define "page"}}
-<ul>
-{{range .}}
-{{template "qa" .}}
-{{end}}
+<h1 class="py-4 text-4xl semibold tracking-tight">FAQ</h1>
+<ul class="grid  grid-cols-2 gap-16">
+    {{range .}}
+        {{template "qa" .}}
+    {{end}}
 </ul>
+{{end}}
+
+
+{{define "qa"}}
+<li class="border-t border-indigo-400 py-1 px-2">
+    <span class="block text-lg text-gray-800 semibold">{{.Question}}</span>
+    <span class="block text-sm text-gray-500">{{.Answer}}</span>
+</li>
 {{end}}
