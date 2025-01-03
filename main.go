@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/flapan/lenslockedv2/controllers"
+	"github.com/flapan/lenslockedv2/models"
 	"github.com/flapan/lenslockedv2/templates"
 	"github.com/flapan/lenslockedv2/views"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +20,19 @@ func main() {
 
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(templates.FS, "tailwind.gohtml", "faq.gohtml"))))
 
-	usersC := controllers.Users{}
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	userService := models.UserService{
+		DB: db,
+	}
+	usersC := controllers.Users{
+		UserService: &userService,
+	}
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "tailwind.gohtml", "signup.gohtml"))
 	r.Get("/signup", usersC.New)
 	r.Post("/users", usersC.Create)
