@@ -19,7 +19,7 @@ type UserService struct {
 	DB *sql.DB
 }
 
-func (us *UserService) Create(password, email string) (*User, error) {
+func (us *UserService) Create(email, password string) (*User, error) {
 	email = strings.ToLower(email)
 	hashshedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

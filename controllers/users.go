@@ -28,14 +28,13 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Fprint(w, "Email: ", r.FormValue("email"))
-	fmt.Fprint(w, "Password: ", r.FormValue("password"))
-	// var data struct {
-	// 	Email    string
-	// 	Password string
-	// }
-	// data.Email = r.FormValue("email")
-	// data.Password = r.FormValue("password")
-	// fmt.Println(data)
-	// u.Templates.New.Execute(w, data)
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, err := u.UserService.Create(email, password)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "User created: %+v", user)
 }
