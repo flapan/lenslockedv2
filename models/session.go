@@ -7,6 +7,12 @@ import (
 	"github.com/flapan/lenslockedv2/rand"
 )
 
+const (
+	// The minimum number of bytes required for a secure token
+	// This is used to generate a random token for the session
+	MinBytesPerToken = 32
+)
+
 // Token is only set when creating a new session,
 // when looking up a session this will be left empty
 // as we only store the hash of the session token in
@@ -20,11 +26,16 @@ type Session struct {
 }
 
 type SessionService struct {
-	DB *sql.DB
+	DB            *sql.DB
+	BytesPerToken int
 }
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
-	token, err := rand.SessionToken()
+	bytesPerToken := ss.BytesPerToken
+	if bytesPerToken < MinBytesPerToken {
+		bytesPerToken = MinBytesPerToken
+	}
+	token, err := rand.String(bytesPerToken)
 	if err != nil {
 		return nil, fmt.Errorf("Create: %w", err)
 	}
