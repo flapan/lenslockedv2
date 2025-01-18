@@ -1,6 +1,11 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+
+	"github.com/flapan/lenslockedv2/rand"
+)
 
 // Token is only set when creating a new session,
 // when looking up a session this will be left empty
@@ -14,17 +19,25 @@ type Session struct {
 	TokenHash string
 }
 
-type SessionsService struct {
+type SessionService struct {
 	DB *sql.DB
 }
 
-func (ss *SessionsService) Create(userID int) (*Session, error) {
-	// TODO: Create the session token
-	// TODO: Create the SessionService.Create
-	return nil, nil
+func (ss *SessionService) Create(userID int) (*Session, error) {
+	token, err := rand.SessionToken()
+	if err != nil {
+		return nil, fmt.Errorf("Create: %w", err)
+	}
+	session := Session{
+		UserID: userID,
+		Token:  token,
+		// TODO: set the token hash	TokenHash: ss.hash(token),
+	}
+	// TODO: Store the session in the DB
+	return &session, nil
 }
 
-func (ss *SessionsService) User(token string) (*User, error) {
+func (ss *SessionService) User(token string) (*User, error) {
 	// TODO: Implement SessionService.User
 	return nil, nil
 }

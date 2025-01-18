@@ -13,7 +13,7 @@ type Users struct {
 		SignIn Template
 	}
 	UserService     *models.UserService
-	SessionsService *models.SessionsService
+	SessionsService *models.SessionService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
