@@ -49,15 +49,17 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 	row := ss.DB.QueryRow(`
 		UPDATE sessions
 		SET token_hash = $2
-		WHERE user_id = %1
+		WHERE user_id = $1
 		RETURNING id;`, session.UserID, session.TokenHash)
+	fmt.Printf("UPDATE sessions SET token_hash = %s WHERE user_id = %d RETURNING id;", session.TokenHash, session.UserID)
 	err = row.Scan(&session.ID)
-	if err != nil {
+	if err == sql.ErrNoRows {
 		row = ss.DB.QueryRow(`
 		INSERT INTO sessions(user_id, token_hash) 
 		VALUES($1, $2) 
 		RETURNING id;`, session.UserID, session.TokenHash)
 		err = row.Scan(&session.ID)
+		fmt.Printf("INSERT INTO sessions(user_id, token_hash) VALUES(%d, %s) RETURNING id;", session.UserID, session.TokenHash)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("Create: %w", err)
@@ -67,8 +69,25 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 }
 
 func (ss *SessionService) User(token string) (*User, error) {
-	// TODO: Implement SessionService.User
-	return nil, nil
+	tokenHash := ss.hash(token)
+	var user User
+	row := ss.DB.QueryRow(`
+		SELECT user_id
+		FROM sessions
+		WHERE token_hash = $1;`, tokenHash)
+	err := row.Scan(&user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("User: %w", err)
+	}
+	row = ss.DB.QueryRow(`
+		SELECT email, password
+		FROM users
+		WHERE id = $1;`, user.ID)
+	err = row.Scan(&user.Email, &user.Password)
+	if err != nil {
+		return nil, fmt.Errorf("User: %w", err)
+	}
+	return &user, nil
 }
 
 func (ss *SessionService) hash(token string) string {
