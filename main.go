@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/flapan/lenslockedv2/controllers"
+	"github.com/flapan/lenslockedv2/migrations"
 	"github.com/flapan/lenslockedv2/models"
 	"github.com/flapan/lenslockedv2/templates"
 	"github.com/flapan/lenslockedv2/views"
@@ -29,7 +30,7 @@ func main() {
 	}
 	defer db.Close()
 
-	err = models.Migrate(db, "migrations")
+	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
 		panic(err)
 	}
