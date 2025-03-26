@@ -117,11 +117,18 @@ func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := readCookie(r, CookieSession)
 		if err != nil {
+			fmt.Println(err)
+			next.ServeHTTP(w, r)
+			return
+		}
+		if token == "" {
+			fmt.Println("Empty token found")
 			next.ServeHTTP(w, r)
 			return
 		}
 		user, err := umw.SessionService.User(token)
 		if err != nil {
+			fmt.Println(err)
 			next.ServeHTTP(w, r)
 			return
 		}
